@@ -1,27 +1,23 @@
 package org.example;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.util.Scanner;
+import java.util.ArrayList;
 
 public class Seller {
-    public static boolean doesSellerExist(String name, String password) {
-        try {
-            File file = new File("SellerLogin.txt");
-            Scanner reader = new Scanner(file);
-            while (reader.hasNext()) {
-                String readName = reader.next();
-                String readPassword = reader.next();
-                if (name.equals(readName) && password.equals(readPassword)) {
-                    reader.close();
-                    return true;
-                }
-            }
-            reader.close();
-            return false;
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-            return false;
-        }
+    public String companyName;
+    public String password;
+    public ArrayList<String> productsName;
+    public int wallet;
+
+    public Seller(String companyName, String password) {
+        this.companyName =companyName;
+        this.password = password;
+    }
+
+    public void setWallet(int wallet) {
+        this.wallet = wallet;
+    }
+    public void setProductsName(ArrayList<String> productsName) {
+        this.productsName = productsName;
     }
 }
+
