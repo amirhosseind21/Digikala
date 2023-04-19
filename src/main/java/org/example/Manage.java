@@ -3,9 +3,39 @@ package org.example;
 import java.io.File;
 import java.io.FileWriter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Scanner;
 
 public class Manage {
+    final String shopName = "Digikala";
+    final String website = "digikala.com";
+    final String shopNumber = "02161930000";
+    private static int profit = 0;
+
+    private static HashMap<String, Integer> fundRequest = new HashMap<>();// key : userName , value : request amount
+    public static HashMap<String, Integer> getFundRequest() {
+        return fundRequest;
+    }
+    public static void setFundRequest(String userName, int moneyAmount) {
+        Manage.fundRequest.put(userName, moneyAmount);
+    }
+
+    public static HashMap<String, Product> addProductRequest = new HashMap<>();// key : companyName , value : product
+    public static HashMap<String, Product> getAddProductRequest() {
+        return addProductRequest;
+    }
+    public static void setAddProductRequest(String companyName, Product product) {
+        addProductRequest.put(companyName, product);
+    }
+
+    private static HashMap<String, ArrayList<String>> orderRequest = new HashMap<>();// key : userName , value : cart
+    public static void setOrderRequest(String userName, ArrayList<String> cart) {
+        orderRequest.put(userName, cart);
+    }
+    public static HashMap<String, ArrayList<String>> getOrderRequest() {
+        return orderRequest;
+    }
+
     // file read and write
     public static void getFileDetails() {
         userGetFileDetails();
@@ -63,11 +93,18 @@ public class Manage {
     public static void writeUserFile() {
         try {
             FileWriter writer = new FileWriter("User.txt");
-            writer.write(user.size());
+            writer.write((int)user.size());
             writer.write("\n");
             for (int i = 0; i < user.size(); i++) {
-                writer.write(user.get(i).userName + " " + user.get(i).password + " " + user.get(i).email + " " + user.get(i).address + " " + user.get(i).number + " ");
-                writer.write(user.get(i).wallet + " " + user.get(i).cart.size() + " " + user.get(i).cart + " " + user.get(i).purchaseHistory.size() + " " + user.get(i).purchaseHistory);
+                writer.write(user.get(i).getUserName() + " " + user.get(i).getPassword() + " " + user.get(i).getEmail() + " " + user.get(i).getAddress() + " " + user.get(i).getNumber() + " ");
+                writer.write(user.get(i).getWallet() + " " + user.get(i).getCart().size() + " ");
+                for (int j = 0; j < user.get(i).getCart().size(); j++) {
+                    writer.write((user.get(i).getCart().get(j) + " " ));
+                }
+                writer.write(user.get(i).getPurchaseHistory().size());
+                for (int j = 0; j < user.get(i).getPurchaseHistory().size(); j++) {
+                    writer.write(" " + user.get(i).getPurchaseHistory().get(j));
+                }
                 writer.write("\n");
             }
 
@@ -79,25 +116,20 @@ public class Manage {
     }
     public static boolean doesUserExist(String name, String password) {
         for (int i = 0; i < user.size(); i++) {
-            if (user.get(i).userName.equals(name) && user.get(i).password.equals(password)) {
+            if (user.get(i).getUserName().equals(name) && user.get(i).getPassword().equals(password)) {
                 return true;
             }
         }
         return false;
     }
     public static boolean doesUserExist(String name){
-        return user.get(0).userName.equals(name);
+        return user.get(0).getUserName().equals(name);
     }
     public static void addUser(String name, String password, String email, String number, String address) {
         User newUser = new User(name, password, email, number , address);
         user.add(newUser);
     }
-    public static void addProductToCart(String productId) {
 
-    }
-    public static void addMoney(int moneyAmount) {
-
-    }
 
 
     // seller related functions
@@ -133,8 +165,8 @@ public class Manage {
             writer.write(seller.size());
             writer.write("\n");
             for (int i = 0; i < seller.size(); i++) {
-                writer.write(seller.get(i).companyName + " " + seller.get(i).password + " ");
-                writer.write(seller.get(i).productsName.size() + " " + seller.get(i).productsName + " " + seller.get(i).wallet);
+                writer.write(seller.get(i).getCompanyName() + " " + seller.get(i).getPassword() + " ");
+                writer.write(seller.get(i).getProductsName().size() + " " + seller.get(i).getProductsName() + " " + seller.get(i).getWallet());
                 writer.write("\n");
             }
 
@@ -146,7 +178,7 @@ public class Manage {
     }
     public static boolean doesSellerExist(String name, String password) {
         for (int i = 0; i < seller.size(); i++) {
-            if (seller.get(i).companyName.equals(name) && seller.get(i).password.equals(password)) {
+            if (seller.get(i).getCompanyName().equals(name) && seller.get(i).getPassword().equals(password)) {
                 return true;
             }
         }
@@ -156,7 +188,7 @@ public class Manage {
         return false;
     }
     public static void addSeller(String name, String password) {
-
+        seller.add(new Seller(name, password));
     }
 
 
@@ -186,7 +218,7 @@ public class Manage {
             writer.write(admin.size());
             writer.write("\n");
             for (int i = 0; i < admin.size(); i++) {
-                writer.write(admin.get(i).name + " " + admin.get(i).password + " " + admin.get(i).email);
+                writer.write(admin.get(i).getName() + " " + admin.get(i).getPassword() + " " + admin.get(i).getEmail());
                 writer.write("\n");
             }
 
@@ -198,16 +230,23 @@ public class Manage {
     }
     public static boolean doesAdminExist(String name, String password) {
         for (int i = 0; i < admin.size(); i++) {
-            if (admin.get(i).name.equals(name) && admin.get(i).password.equals(password)) {
+            if (admin.get(i).getName().equals(name) && admin.get(i).getPassword().equals(password)) {
                 return true;
             }
         }
         return false;
     }
     public static boolean doesAdminExist(String name) {
+        for (int i = 0; i < admin.size(); i++) {
+            if (admin.get(i).getName().equals(name)) {
+                return true;
+            }
+        }
         return false;
     }
-
+    public static void addAdmin(String name, String password, String email) {
+        admin.add(new Admin(name, password, email));
+    }
 
     // product related functions
     static ArrayList<Product> product = new ArrayList<>();
@@ -241,11 +280,11 @@ public class Manage {
             writer.write(product.size());
             writer.write("\n");
             for (int i = 0; i < product.size(); i++) {
-                writer.write(product.get(i).category + " " + product.get(i).subCategory + " " + product.get(i).name + " ");
-                writer.write(product.get(i).price + " " + product.get(i).price + " " + product.get(i).number + product.get(i).comment.size());
+                writer.write(product.get(i).getCategory() + " " + product.get(i).getSubCategory() + " " + product.get(i).getName() + " ");
+                writer.write(product.get(i).getPrice() + " " + product.get(i).getNumber() + " " + product.get(i).getComment().size());
                 writer.write("\n");
-                for (int j = 0; j < product.get(i).comment.size(); j++) {
-                    writer.write(product.get(i).comment.get(i) + "\n");
+                for (int j = 0; j < product.get(i).getComment().size(); j++) {
+                    writer.write(product.get(i).getComment().get(i) + "\n");
                 }
             }
 
@@ -255,5 +294,18 @@ public class Manage {
             e.printStackTrace();
         }
     }
-
+    public static int productNumber() {
+        return product.size();
+    }
+    public static ArrayList<Product> productList() {
+        return product;
+    }
+    public static int nameToPrice(String name) {
+        for (int i = 0; i < product.size(); i++) {
+            if (product.get(i).getName().equals(name)) {
+                return product.get(i).getPrice();
+            }
+        }
+        return -1;
+    }
 }
